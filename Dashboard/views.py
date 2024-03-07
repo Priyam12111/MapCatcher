@@ -5,7 +5,6 @@ from geopy.geocoders import Nominatim
 from geopy.exc import GeocoderTimedOut
 
 df = pd.read_csv(r'static/nsample.csv')
-
 pincodes = df['Pincode'].tolist()
 
 geolocator = Nominatim(user_agent="pincode_locator")
@@ -38,4 +37,4 @@ def map_view(request):
 
     map_html = m._repr_html_()
 
-    return render(request, 'templates/dashboard.html', {'map_html': map_html})
+    return render(request, 'templates/dashboard.html', {'map_html': map_html,'dataFrame':df.to_html(index=False)})
