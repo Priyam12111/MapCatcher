@@ -37,7 +37,6 @@ def map_view(request):
 
     pincodes = list(collection.find({},{'Pincode':1}).skip(start_index).limit(totalElem))
     pincodes = [terms['Pincode'] for terms in pincodes]
-    print(pincodes)
     batch_locations = batch_geocode(pincodes)
     paginator = Paginator(range(total_documents), totalElem)
     page_obj = paginator.get_page(page_number)
@@ -49,6 +48,7 @@ def map_view(request):
 
         popup_text = f"<div style='width: 200px;'>Crop Type: {data['Crop_Type']}<br>Crop Area: {data['CROP_AREA']}<br>Crop Production: {data['CROP_PRODUCTION']}<br>Season: {data['Season']}<br>Pincode: {pincode}</div>"
         green_color = "#00FF00"  # Hex color for green
+        icon_image = "https://w7.pngwing.com/pngs/51/802/png-transparent-circle-green-circle-color-grass-sphere.png"
         folium.CircleMarker(
             [location.latitude, location.longitude],
             radius=10,  # You can adjust the radius as needed
@@ -57,9 +57,6 @@ def map_view(request):
             fill=True,
             fill_color=green_color,
             fill_opacity=1,
-            tiles='https://api.mapbox.com/styles/v1/mapbox/satellite-v9/tiles/{z}/{x}/{y}?access_token=YOUR_MAPBOX_ACCESS_TOKEN',
-            attr='Mapbox',
-            name='Satellite',
         ).add_to(m)
 
     map_html = m._repr_html_()
