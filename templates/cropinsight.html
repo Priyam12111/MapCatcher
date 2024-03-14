@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Crop Insights{% endblock title %}
+{% block content %}
+    <div class="title mx-3">
+        <h1>BC-wise data</h1>
+        <hr>
+    </div>
+    <div class="data_view">
+        <div class="table px-3 table-wrapper" style="overflow:auto;scrollbar-width: none;-ms-overflow-style: none;">
+            <table class="fl-table" >
+                <thead>
+                    <tr>
+                        <th>Name of BC</th>
+                        <th>Contact Number</th>
+                        <th>Gender</th>
+                        <th>Bank Name</th>
+                        <th>State</th>
+                        <th>District</th>
+                        <th>Office Name</th>
+                        <th>Pincode</th>
+                        <th>Corporate BC name</th>
+                        <th>ODOP product</th>
+                        <th>CODE WORD OF PRODUCT LIST</th>
+                        <th>CROP1 NAME</th>
+                        <th>CROP1 SEASON</th>
+                        <th>CROP1 AREA</th>
+                        <th>CROP1 PRODUCTION</th>
+                        <th>CROP1 Pincode</th>
+                        <th>CROP NAME</th>
+                        <th>SEASON</th>
+                        <th>CROP AREA</th>
+                        <th>CROP PRODUCTION</th>
+                        <th>CROP NAME.1</th>
+                        <th>SEASON.1</th>
+                        <th>CROP AREA.1</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for data in items %}
+                    <tr>
+                        <td>{{ data.name_of_bc|default_if_none:"N/A" }}</td>
+                        <td>{{ data.contact_number|default_if_none:"N/A" }}</td>
+                        <td>{{ data.gender|default_if_none:"N/A" }}</td>
+                        <td>{{ data.bank_name|default_if_none:"N/A" }}</td>
+                        <td>{{ data.state|default_if_none:"N/A" }}</td>
+                        <td>{{ data.district|default_if_none:"N/A" }}</td>
+                        <td>{{ data.office_name|default_if_none:"N/A" }}</td>
+                        <td>{{ data.pincode|default_if_none:"N/A" }}</td>
+                        <td>{{ data.corporate_bc_name|default_if_none:"N/A" }}</td>
+                        <td>{{ data.odop_product|default_if_none:"N/A" }}</td>
+                        <td>{{ data.code_word_of_product_list|default_if_none:"N/A" }}</td>
+                        <td>{{ data.crop1_name|default_if_none:"N/A" }}</td>
+                        <td>{{ data.crop1_season|default_if_none:"N/A" }}</td>
+                        <td>{{ data.crop1_area|default_if_none:"N/A" }}</td>
+                        <td>{{ data.crop1_production|default_if_none:"N/A" }}</td>
+                        <td>{{ data.crop1_pincode|default_if_none:"N/A" }}</td>
+                        <td>{{ data.crop_name|default_if_none:"N/A" }}</td>
+                        <td>{{ data.season|default_if_none:"N/A" }}</td>
+                        <td>{{ data.crop_area|default_if_none:"N/A" }}</td>
+                        <td>{{ data.crop_production|default_if_none:"N/A" }}</td>
+                        <td>{{ data.crop_name_1|default_if_none:"N/A" }}</td>
+                        <td>N/A</td>
+                        <td>{{ data.crop_area_1|default_if_none:"N/A" }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% if page_obj.has_previous or page_obj.has_next %}
+
+            <div class="pagination justify-content-center my-2">
+
+                {% if page_obj.has_previous %}
+                <a class="btn btn-outline-primary item-number" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                {% endif %}
+
+                {% for i in page_obj.paginator.page_range %}
+                    {% if page_obj.number == i %}
+                        <span class="item-number current-page-real mx-3 my-1 ">{{ i }}</span>
+                    {% else %}
+                        {% if i == 1 or i == totalpages or i in page_obj.paginator.page_range|slice:":3" or i in page_obj.paginator.page_range|slice:"-3:" %}
+                            <a class="item-number current-page mx-3 my-1" href="?page={{ i }}">{{ i }}</a>
+                        {% endif %}
+                    {% endif %}
+                {% endfor %}
+
+                {% if page_obj.has_next %}
+                <a class="btn btn-outline-primary item-number" href="?page={{ page_obj.next_page_number }}">Next</a>
+                {% endif %}
+            </div>
+
+            {% endif %}
+        </div>
+        <hr>
+        <div class="map">
+            <div class="Fullmap">
+                {{ map_html | safe }}
+            </div>
+            <div class="mapDetails" style="width: 400px;margin-left: 0px;height: 160px;overflow:scroll;scrollbar-width: none;-ms-overflow-style: none; ">
+                Map Info
+            </div>
+        </div>
+
+    </div>
+    {% endblock content %}

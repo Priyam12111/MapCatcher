@@ -29,6 +29,10 @@ table * {
     border: 1px solid black;
 }
 
+table {
+    border-collapse: collapse;
+}
+
 th {
     padding: 5px;
 }
@@ -61,12 +65,22 @@ h2 {
     padding: 30px 0;
 }
 
-/* Table Styles */
+.Fullmap {
+    border: 3px solid;
+}
+
+span[style="color:#565656"] {
+    display: none;
+}
 
 .table-wrapper {
-    margin: 10px 70px 70px;
+    margin: 10px 50px 50px;
     box-shadow: 0px 35px 50px rgba(0, 0, 0, 0.2);
     height: 450px;
+    border-radius: 20px;
+    overflow: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
 }
 
 .fl-table {
@@ -113,15 +127,6 @@ h2 {
     .fl-table {
         display: block;
         width: 100%;
-    }
-
-    .table-wrapper:before {
-        content: "Scroll horizontally >";
-        display: block;
-        text-align: right;
-        font-size: 11px;
-        color: white;
-        padding: 0 0 10px;
     }
 
     .fl-table thead,
@@ -200,7 +205,7 @@ iframe {
 }
 
 .mapDetails {
-    width: 200px;
+    width: 520px;
     border: 2px solid #3498db;
     border-radius: 8px;
     padding: 16px;
@@ -209,6 +214,8 @@ iframe {
     background-color: #ecf0f1;
     transition: all 1s ease-in;
     font-family: Arial, sans-serif;
+    overflow: auto;
+
 }
 
 .mapDetails p {
@@ -228,6 +235,7 @@ iframe {
     0% {
         transform: translateX(-100%);
     }
+
     20% {
         transform: translateX(10%);
     }
@@ -235,4 +243,19 @@ iframe {
 
 .table {
     animation: slideInCollisionStop 1s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+/* Apply the animation to an element */
+.animate-on-load {
+    animation: fadeIn 1.5s ease-in-out;
 }
