@@ -93,13 +93,40 @@
         </div>
         <hr>
         <div class="map">
-            <div class="Fullmap">
-                {{ map_html | safe }}
+            <div class="ResizableMap">
+                <div class="Fullmap ">
+                    {{ map_html | safe }}
+                </div>
             </div>
-            <div class="mapDetails" style="width: 400px;margin-left: 0px;height: 160px;overflow:scroll;scrollbar-width: none;-ms-overflow-style: none; ">
-                Map Info
+            <div class="mapDetails" style="width: 400px;margin-left: 0px;height: 137px;overflow:scroll;scrollbar-width: none;-ms-overflow-style: none;">
+                
             </div>
         </div>
 
     </div>
+    <script>
+        const resizableMap = document.querySelector('.ResizableMap');
+        const mapDetails = document.querySelector('.mapDetails');
+
+        console.log(resizableMap);
+        function saveSizeToLocalStorage() {
+            
+            localStorage.setItem('resizableMapWidth', resizableMap.offsetWidth);
+            localStorage.setItem('resizableMapHeight', resizableMap.offsetHeight);
+            console.log('Elements are saved');
+        }
+    
+        function setInitialSizeFromLocalStorage() {
+            const width = localStorage.getItem('resizableMapWidth');
+            const height = localStorage.getItem('resizableMapHeight');
+            if (width && height) {
+                resizableMap.style.width = width + 'px';
+                resizableMap.style.height = height + 'px';
+                mapDetails.style.width = width-10 + 'px';
+            }
+        }
+        new ResizeObserver(() => saveSizeToLocalStorage()).observe(resizableMap);
+
+        setInitialSizeFromLocalStorage();
+    </script>
     {% endblock content %}

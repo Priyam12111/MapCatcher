@@ -4,5 +4,5 @@ from Dashboard import views
 
 urlpatterns = [
     path('', views.map_view, name='map_view'),
-    path('CropInsights', views.CropInsights, name='CropInsights'),
+    path('crop-insights', views.CropInsights, name='CropInsights'),
 ]

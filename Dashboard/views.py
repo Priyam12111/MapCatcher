@@ -57,15 +57,19 @@ def map_view(request):
 
     for location, pincode, data in zip(batch_locations, pincodes, documents):
         try:
-            customIcontype = folium.CustomIcon(icon_image=f'static/{data["Crop_Type"].strip()}.jpg', icon_size=(60,60))
+            customIcontype = folium.CustomIcon(
+                icon_image=f'static/{data["Crop_Type"].strip()}.jpg', icon_size=(60, 60)
+            )
         except Exception:
-            customIcontype = folium.CustomIcon(icon_image=f'static/{data["Crop_Type"]}.jpg', icon_size=(60,60))
-       
+            customIcontype = folium.CustomIcon(
+                icon_image=f'static/{data["Crop_Type"]}.jpg', icon_size=(60, 60)
+            )
+
         popup_text = f"<div onmouseover='sayHello(event)' id='poppuphtml' style='width: 200px;'>Crop Type: {data['Crop_Type']}<br>Crop Area: {data['CROP_AREA']} sq<br>Crop Production: {data['CROP_PRODUCTION']}<br>Season: {data['Season']}<br>Pincode: {pincode}</div>"
         folium.Marker(
             [location.latitude, location.longitude],
             popup=popup_text,
-            icon=customIcontype
+            icon=customIcontype,
         ).add_to(m)
     js_code = """
         <script>
@@ -121,10 +125,14 @@ def CropInsights(request):
 
     for location, pincode, data in zip(batch_locations, pincodes, documents):
         try:
-            customIcontype = folium.CustomIcon(icon_image=f'static/{data["crop_name"].strip()}.jpg', icon_size=(60,60))
+            customIcontype = folium.CustomIcon(
+                icon_image=f'static/{data["crop_name"].strip()}.jpg', icon_size=(60, 60)
+            )
         except Exception:
-            customIcontype = folium.CustomIcon(icon_image=f'static/{data["crop_name"]}.jpg', icon_size=(60,60))
-       
+            customIcontype = folium.CustomIcon(
+                icon_image=f'static/{data["crop_name"]}.jpg', icon_size=(60, 60)
+            )
+
         popup_text = f"""
 <div onmouseover='sayHello(event)' id='popuphtml' style='width: 200px;height:100px;overflow:scroll;scrollbar-width: none;-ms-overflow-style: none;'>
     Name of BC: {data.get('name_of_bc', 'N/A')}<br>
@@ -155,7 +163,7 @@ def CropInsights(request):
         folium.Marker(
             [location.latitude, location.longitude],
             popup=popup_text,
-            icon=customIcontype
+            icon=customIcontype,
         ).add_to(m)
     js_code = """
         <script>
