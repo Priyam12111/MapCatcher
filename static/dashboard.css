@@ -44,7 +44,7 @@ th {
 .data_view {
     display: flex;
     flex-direction: row;
-    height: 70vh;
+    height: 90vh;
     transition: all 0.7s ease;
 }
 

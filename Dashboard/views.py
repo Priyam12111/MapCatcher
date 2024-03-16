@@ -1,17 +1,17 @@
-from django.shortcuts import render
+from django.shortcuts import render, HttpResponse
 import folium
 import pandas as pd
 from geopy.geocoders import Nominatim
 from geopy.exc import GeocoderTimedOut
-from pymongo import MongoClient
+from pymongo import MongoClient, TEXT
 from django.core.paginator import Paginator
+from django.views.decorators.csrf import csrf_exempt
 
 
 client = MongoClient(
     "mongodb+srv://Priyam:5H7SatQX2vjV60ea@mapcasher.fkurktv.mongodb.net/"
 )
 db = client["MapData"]
-print("NominatimCount")
 geolocator = Nominatim(user_agent="pincode_locator", timeout=5)
 
 
@@ -32,9 +32,10 @@ def batch_geocode(pincodes):
 totalElem = 10
 
 
+@csrf_exempt
 def map_view(request):
-    collection = db["Mapcollection"]
 
+    collection = db["Mapcollection"]
     total_documents = collection.count_documents({})
     page_number = request.GET.get("page")
     if page_number != None:
@@ -42,17 +43,79 @@ def map_view(request):
     else:
         start_index = 0
 
-    pincodes = list(
-        collection.find({}, {"Pincode": 1}).skip(start_index).limit(totalElem)
-    )
+    pincodes = list(collection.find({}, {"Pincode": 1}).skip(start_index).limit(totalElem))
     pincodes = [terms["Pincode"] for terms in pincodes]
     batch_locations = batch_geocode(pincodes)
     paginator = Paginator(range(total_documents), totalElem)
     page_obj = paginator.get_page(page_number)
     totalpages = paginator.num_pages
-    documents = list(
-        collection.find().sort("_id", 1).skip(start_index).limit(totalElem)
-    )
+    documents = list(collection.find().sort("_id", 1).skip(start_index).limit(totalElem))
+
+    # ->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    if request.method == 'POST':
+        collection = db["LargeData"]
+        search_query = request.POST.get('search', None)
+        collection.create_index([("$**", TEXT)])
+        if search_query:
+            print(search_query)
+            collection2 = (collection.find(
+                {"$text": {"$search": search_query}}))
+            documents = list(collection2.sort("_id", 1).limit(10))
+            if not documents:
+                return HttpResponse('Data Not Found')
+            else:
+                # Assuming 10 items per page
+                paginator = Paginator(documents, 10)
+                page_number = request.GET.get('page', 1)
+                page_obj = paginator.get_page(page_number)
+
+                m = folium.Map(location=[20, 77], zoom_start=5)
+
+                for location, pincode, data in zip(batch_locations, pincodes, page_obj):
+                    try:
+                        customIcontype = folium.CustomIcon(
+                            icon_image=f'static/{data["Crop_Type"].strip()}.jpg', icon_size=(60, 60)
+                        )
+                    except Exception:
+                        customIcontype = folium.CustomIcon(
+                            icon_image=f'static/{data["Crop_Type"]}.jpg', icon_size=(60, 60)
+                        )
+
+                    popup_text = f"<div onmouseover='sayHello(event)' id='poppuphtml' style='width: 200px;'>Crop Type: {data['Crop_Type']}<br>Crop Area: {data['CROP_AREA']} sq<br>Crop Production: {data['CROP_PRODUCTION']}<br>Season: {data['Season']}<br>Pincode: {pincode}</div>"
+                    folium.Marker(
+                        [location.latitude, location.longitude],
+                        popup=popup_text,
+                        icon=customIcontype,
+                    ).add_to(m)
+                js_code = """
+                    <script>
+                        function sayHello(e) {
+                            var popupElement = e.currentTarget;
+                            var popupText = popupElement.innerHTML || popupElement.innerHTML;
+                            var parentDiv = window.parent.document.querySelector('.mapDetails');
+                            if (parentDiv) {
+                                parentDiv.innerHTML = popupText;
+                            }
+                        }
+                    </script>
+                """
+
+                # Add the JavaScript code to the map
+                m.get_root().html.add_child(folium.Element(js_code))
+                map_html = m._repr_html_()
+                return render(
+                    request,
+                    "templates/dashboard.html",
+                    {
+                        "map_html": map_html,
+                        "items": documents,
+                        "page_obj": page_obj,
+                        "totalpages": paginator.num_pages,
+                    },
+                )
+
+    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
     m = folium.Map(location=[20, 77], zoom_start=5)
 
     for location, pincode, data in zip(batch_locations, pincodes, documents):
@@ -87,7 +150,6 @@ def map_view(request):
     # Add the JavaScript code to the map
     m.get_root().html.add_child(folium.Element(js_code))
     map_html = m._repr_html_()
-
     return render(
         request,
         "templates/dashboard.html",
