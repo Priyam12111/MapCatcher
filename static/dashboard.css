@@ -86,6 +86,7 @@ span[style="color:#565656"] {
     overflow: auto;
     scrollbar-width: none;
     -ms-overflow-style: none;
+    width: 550px;
 }
 
 .fl-table {
@@ -491,4 +492,9 @@ h6 {
     100% {
         left: 100%;
     }
+}
+
+.current-page-real{
+    background-color: whitesmoke;
+    color: black;
 }

@@ -8,6 +8,7 @@ from django.core.paginator import Paginator
 from django.views.decorators.csrf import csrf_exempt
 from time import sleep
 import requests,bson
+from django.core.cache import cache
 
 client = MongoClient(
     "mongodb+srv://Priyam:5H7SatQX2vjV60ea@mapcasher.fkurktv.mongodb.net/"
@@ -28,29 +29,43 @@ def batch_geocode(pincodes):
     sleep(1)
     return locations
 
-
 def batch_geocode2(pincodes, districts, states):
     locations = []
     for pincode, district, state in zip(pincodes, districts, states):
-        url = f"https://nominatim.openstreetmap.org/search?postalcode={pincode}&county={district}&state={state}&format=json"
-        if district == "N/A" or district == "" :
-            url = f"https://nominatim.openstreetmap.org/search?state={state}&format=json"
-        headers = {
-            "User-Agent": "MapSearch/1.0"  # Replace YourApp/1.0 with your application name and version
-        }
-        response = requests.get(url, headers=headers)
-        if response.status_code == 200:
-            data = response.json()
-            if data:
-                latitude = float(data[0]["lat"])
-                longitude = float(data[0]["lon"])
-
-                locations.append((latitude, longitude))
+        try:
+            print(pincode,district,state,end=" ")
+            cache_key = f"geocode_{pincode}_{district}_{state}"
+            cached_location = cache.get(cache_key)
+            if cached_location:
+                locations.append(cached_location)
+                continue
+            
+            url = f"https://nominatim.openstreetmap.org/search?postalcode={pincode}&county={district}&state={state}&format=json"
+            if district == "N/A" or district == "":
+                url = f"https://nominatim.openstreetmap.org/search?state={state}&format=json"
+            
+            headers = {
+                "User-Agent": "MapSearch/1.0"  # Replace YourApp/1.0 with your application name and version
+            }
+            response = requests.get(url, headers=headers)
+            
+            if response.status_code == 200:
+                data = response.json()
+                if data:
+                    latitude = float(data[0]["lat"])
+                    longitude = float(data[0]["lon"])
+                    location = (latitude, longitude)
+                    locations.append(location)
+                    print(location)
+                    cache.set(cache_key, location, timeout=None)  # Adjust timeout as needed
+                else:
+                    locations.append((None, None))
             else:
+                print(f"Error processing Pincode {pincode}: {response.status_code}")
                 locations.append((None, None))
-        else:
-            print(f"Error processing Pincode {pincode}: {response.status_code}")
-            locations.append((None, None))
+        except Exception:
+            pass
+        
         sleep(1)
     
     return locations
@@ -80,6 +95,12 @@ def map_view(request):
     # ->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     if request.method == 'POST':
         collection = db["LargeData"]
+        page_number = request.GET.get("page")
+
+        if page_number != None:
+            start_index = (int(page_number) - 1) * totalElem
+        else:
+            start_index = 0
         search_query = (request.POST.get('search', None))
         if str(search_query).isdigit():
             search_query_org = {"$or": [{'contact_number': bson.int64.Int64(int(search_query))}, {'pincode': int(search_query)},{'crop1_pincode': int(search_query)},{'crop1_production': int(search_query)}]}
@@ -88,13 +109,13 @@ def map_view(request):
         collection.create_index([("$**", TEXT)])
         if search_query:
             collection2 = (collection.find(search_query_org))
-            documents = list(collection2.sort("_id", 1).limit(10))
+            documents_2= list(collection2.sort("_id", 1).skip(start_index).limit(totalElem))
             pincodes_2 = list(collection.find(search_query_org, {"pincode": 1, "district": 1, "state": 1}).skip(start_index).limit(totalElem))
             pincodes2 = [terms["pincode"] for terms in pincodes_2]
             district2 = [term.get("district", "") for term in pincodes_2]  # Use get() with a default value
             state2 = [term.get("state", "") for term in pincodes_2]  # Use get() with a default value
             batch_locations2 = batch_geocode2(pincodes2,district2,state2)
-            if not documents:
+            if not documents_2:
                 return HttpResponse('Data Not Found')
             else:
                 # Assuming 10 items per page
@@ -104,7 +125,7 @@ def map_view(request):
 
                 m = folium.Map(location=[20, 77], zoom_start=5)
 
-                for location2, pincode, data in zip(batch_locations2, pincodes2, documents):
+                for location2, pincode, data in zip(batch_locations2, pincodes2, documents_2):
                     try:
                         customIcontype = folium.CustomIcon(
                             icon_image=f'static/Images/{data["crop_name"].strip()}.jpg', icon_size=(60, 60)
@@ -120,7 +141,7 @@ def map_view(request):
                     Gender: {data.get('gender', 'N/A')}<br>
                     Bank Name: {data.get('bank_name', 'N/A')}<br>
                     State: {data.get('state', 'N/A')}<br>
-                    District: {data.get('district', 'N/A')}<br>
+                    District: {data.get('district ', 'N/A')}<br>
                     Office Name: {data.get('office_name', 'N/A')}<br>
                     Pincode: {data.get('pincode', 'N/A')}<br>
                     Corporate BC name: {data.get('corporate_bc_name', 'N/A')}<br>
@@ -166,7 +187,7 @@ def map_view(request):
                     "templates/cropinsight.html",
                     {
                         "map_html": map_html,
-                        "items": documents,
+                        "items": documents_2,
                         "page_obj": page_obj,
                         "totalpages": paginator.num_pages,
                         "SearchTitle":f"Search Result for '{search_query}'"
@@ -237,10 +258,10 @@ def CropInsights(request):
     totalpages = paginator.num_pages
     collection3 = collection.find().sort("_id", 1)
     documents = list(collection3.limit(10))
-    pincodes_3 = list(collection.find({}, {"pincode": 1, "district": 1, "state": 1}).sort("_id", 1).skip(start_index).limit(totalElem))
+    pincodes_3 = list(collection.find({}, {"pincode": 1, "district ": 1, "state": 1}).sort("_id", 1).skip(start_index).limit(totalElem))
 
     pincodes = [terms["pincode"] for terms in pincodes_3]
-    districts = [term.get("district", "") for term in pincodes_3]  # Use get() with a default value
+    districts = [term.get("district ", "") for term in pincodes_3]  # Use get() with a default value
     states = [term.get("state", "") for term in pincodes_3] 
     batch_locations2 = batch_geocode2(pincodes,districts,states)
 
@@ -265,7 +286,7 @@ def CropInsights(request):
     Gender: {data.get('gender', 'N/A')}<br>
     Bank Name: {data.get('bank_name', 'N/A')}<br>
     State: {data.get('state', 'N/A')}<br>
-    District: {data.get('district', 'N/A')}<br>
+    District: {data.get('district ', 'N/A')}<br>
     Office Name: {data.get('office_name', 'N/A')}<br>
     Pincode: {data.get('pincode', 'N/A')}<br>
     Corporate BC name: {data.get('corporate_bc_name', 'N/A')}<br>
@@ -285,11 +306,14 @@ def CropInsights(request):
     CROP AREA.1: {data.get('crop_area_1', 'N/A')}<br>
 </div>
 """
-        folium.Marker(
-            [location[0], location[1]],
-            popup=popup_text,
-            icon=customIcontype,
-        ).add_to(m)
+        try:
+            folium.Marker(
+                [location[0], location[1]],
+                popup=popup_text,
+                icon=customIcontype,
+            ).add_to(m)
+        except Exception:
+            continue
     js_code = """
         <script>
             function sayHello(e) {
@@ -315,5 +339,7 @@ def CropInsights(request):
             "items": documents,
             "page_obj": page_obj,
             "totalpages": totalpages,
+            "SearchTitle":f"BC-Query Lookup"
+
         },
     )
