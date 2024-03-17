@@ -33,7 +33,6 @@ def batch_geocode2(pincodes, districts, states):
     locations = []
     for pincode, district, state in zip(pincodes, districts, states):
         try:
-            print(pincode,district,state,end=" ")
             cache_key = f"geocode_{pincode}_{district}_{state}"
             cached_location = cache.get(cache_key)
             if cached_location:
@@ -56,7 +55,6 @@ def batch_geocode2(pincodes, districts, states):
                     longitude = float(data[0]["lon"])
                     location = (latitude, longitude)
                     locations.append(location)
-                    print(location)
                     cache.set(cache_key, location, timeout=None)  # Adjust timeout as needed
                 else:
                     locations.append((None, None))
@@ -110,9 +108,9 @@ def map_view(request):
         if search_query:
             collection2 = (collection.find(search_query_org))
             documents_2= list(collection2.sort("_id", 1).skip(start_index).limit(totalElem))
-            pincodes_2 = list(collection.find(search_query_org, {"pincode": 1, "district": 1, "state": 1}).skip(start_index).limit(totalElem))
+            pincodes_2 = list(collection.find(search_query_org, {"pincode": 1, "district ": 1, "state": 1}).skip(start_index).limit(totalElem))
             pincodes2 = [terms["pincode"] for terms in pincodes_2]
-            district2 = [term.get("district", "") for term in pincodes_2]  # Use get() with a default value
+            district2 = [term.get("district ", "") for term in pincodes_2]  # Use get() with a default value
             state2 = [term.get("state", "") for term in pincodes_2]  # Use get() with a default value
             batch_locations2 = batch_geocode2(pincodes2,district2,state2)
             if not documents_2:
@@ -209,11 +207,14 @@ def map_view(request):
             )
 
         popup_text = f"<div onmouseover='sayHello(event)' id='poppuphtml' style='width: 200px;'>Crop Type: {data['Crop_Type']}<br>Crop Area: {data['CROP_AREA']} sq<br>Crop Production: {data['CROP_PRODUCTION']}<br>Season: {data['Season']}<br>Pincode: {pincode}</div>"
-        folium.Marker(
-            [location.latitude, location.longitude],
-            popup=popup_text,
-            icon=customIcontype,
-        ).add_to(m)
+        try:
+            folium.Marker(
+                [location[0], location[1]],
+                popup=popup_text,
+                icon=customIcontype,
+            ).add_to(m)
+        except Exception:
+            continue
     js_code = """
         <script>
             function sayHello(e) {

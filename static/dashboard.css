@@ -5,7 +5,25 @@ body {
     overflow-x: hidden;
     scrollbar-width: none;
     -ms-overflow-style: none;
-
+    background-color: #f0f0f0; /* Background color behind the glass effect */
+}
+h1 {
+    font-family: Arial, sans-serif;
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+    text-align: center;
+    background-color: rgba(255, 255, 255, 0.5); /* Glass-like background color */
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Glass-like shadow effect */
+}
+@media only screen and (max-width: 767px) {
+    .data_view {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
 }
 
 .item-number {
@@ -216,7 +234,7 @@ iframe {
     padding: 16px;
     margin: 10px;
     font-family: Arial, sans-serif;
-    box-shadow: rgba(0, 0, 0, 0.322) 1.95px 1.95px 2.6px; 
+    box-shadow: rgba(0, 0, 0, 0.322) 1.95px 1.95px 2.6px;
 }
 
 .mapDetails p {
@@ -494,7 +512,7 @@ h6 {
     }
 }
 
-.current-page-real{
+.current-page-real {
     background-color: whitesmoke;
     color: black;
 }
