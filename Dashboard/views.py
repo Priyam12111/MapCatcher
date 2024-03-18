@@ -257,20 +257,32 @@ def CropInsights(request):
     paginator = Paginator(range(total_documents), totalElem)
     page_obj = paginator.get_page(page_number)
     totalpages = paginator.num_pages
-    collection3 = collection.find().sort("_id", 1)
-    documents = list(collection3.skip(start_index).limit(totalElem))
-    pincodes_3 = list(collection.find({}, {"pincode": 1, "district ": 1, "state": 1}).sort("_id", 1).skip(start_index).limit(totalElem))
+    batch_size = 10
+    documents = []
+    cursor = collection.find().sort("_id", 1).skip(start_index)
+    while cursor.alive:
+        batch = cursor.limit(batch_size)
+        documents.extend(list(batch))
+        start_index += batch_size
 
-    pincodes = [terms["pincode"] for terms in pincodes_3]
-    districts = [term.get("district ", "") for term in pincodes_3]  # Use get() with a default value
-    states = [term.get("state", "") for term in pincodes_3] 
-    batch_locations2 = batch_geocode2(pincodes,districts,states)
+    pincodes_3 = collection.find({}, {"pincode": 1, "district ": 1, "state": 1}).sort("_id", 1).skip(start_index).limit(totalElem)
+    pincodes = []
+    districts = []
+    states = []
+    for term in pincodes_3:
+        pincodes.append(term.get("pincode"))
+        districts.append(term.get("district ", ""))
+        states.append(term.get("state", ""))
 
-
-    # documents = list(collection2.sort("_id", 1).skip(start_index).limit(totalElem))
-    m = folium.Map(location=[20, 77], zoom_start=5)
-
+    batch_locations2 = batch_geocode2(pincodes, districts, states)
+    flag = 0
     for location, pincode, data in zip(batch_locations2, pincodes, documents):
+        try:
+            if flag ==0:
+                m = folium.Map(location=[location[0], location[1]], zoom_start=7)
+                flag= 1
+        except Exception:
+            m = folium.Map(location=[20, 77], zoom_start=5)
         try:
             customIcontype = folium.CustomIcon(
                 icon_image=f'static/Images/{data["crop_name"].strip()}.jpg', icon_size=(60, 60)
