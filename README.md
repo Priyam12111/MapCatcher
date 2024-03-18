@@ -18,4 +18,4 @@ To get started with the Point Map Website, follow these steps:
 1. Clone the repository to your local machine:
 
    ```bash
-   git clone https://github.com/your-username/point-map-website.git
+   git clone https://github.com/Priyam12111/MapCatcher.git
