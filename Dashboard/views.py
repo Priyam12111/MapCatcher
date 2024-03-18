@@ -258,7 +258,7 @@ def CropInsights(request):
     page_obj = paginator.get_page(page_number)
     totalpages = paginator.num_pages
     collection3 = collection.find().sort("_id", 1)
-    documents = list(collection3.limit(10))
+    documents = list(collection3.skip(start_index).limit(totalElem))
     pincodes_3 = list(collection.find({}, {"pincode": 1, "district ": 1, "state": 1}).sort("_id", 1).skip(start_index).limit(totalElem))
 
     pincodes = [terms["pincode"] for terms in pincodes_3]
