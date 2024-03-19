@@ -1,0 +1,181 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Home{% endblock title %}
+
+{% block content %}
+<style>
+  body {
+    font-family: Arial, sans-serif;
+  }
+
+  .container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  }
+
+  /* Navigation Bar */
+  .navbar {
+  background-color: #333;
+  overflow: hidden;
+  }
+
+  .navbar a {
+  float: left;
+  display: block;
+  color: #fff;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+  }
+
+  .navbar a:hover {
+  background-color: #ddd;
+  color: #333;
+  }
+
+  .header {
+    background-image: url('your-header-image.jpg');
+    background-size: cover;
+    color: #fff;
+    text-align: center;
+    padding: 20px 0;
+  }
+
+
+  /* Data Representation */
+    .data-section {
+    background-color: #f4f4f4;
+    padding: 10px 5px;
+    text-align: center;
+  }
+
+  .data-section h2 {
+    margin-bottom: 20px;
+  }
+
+  .data-container {
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+  }
+
+  .ad{
+    max-width: 100%;
+    max-height: 100%;
+  }
+
+
+  .data-item {
+    background-color: #fff;
+    padding: 5px;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    max-width: 30% ;
+  }
+
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  h2 {
+    font-size: 24px;
+    margin-bottom: 20px;
+  }
+  img {
+    max-width: 100%;
+    display: block;
+    margin: 0 auto 40px;
+  }
+</style>
+
+  <div class="container">
+    <h2>The Analysis</h2>
+    <p>financial graphs...</p>
+    <img src="{% static "Images/visualization (7).png" %}"  alt="">
+    <br><br><br>
+    <hr><br><br><br>
+    <img src="{% static "Images/visualization (9).png" %}"  alt="">
+    <br><br><br>
+    <hr><br><br><br>
+    <img src="{% static "Images/visualization (3).png" %}"  alt="">
+    <br><br><br>
+    <hr><br><br><br>
+    <img src="{% static "Images/visualization (4).png" %}"  alt="">
+    <br><br><br>
+    <hr><br><br><br>
+    <img src="{% static "Images/visualization (5).png" %}"  alt="">
+    <br><br><br>
+    <hr><br><br><br>
+    <img src="{% static "Images/visualization (6).png" %}"  alt="">
+    <br><br><br>
+    <hr><br><br><br>
+    <img src="{% static "Images/visualization.png" %}"  alt="">
+    <br><br><br>
+    <hr><br><br><br>
+    <img src="{% static "Images/visualization (1).png" %}"  alt="">
+    <br><br><br>
+    <hr><br><br><br>
+    <img src="{% static "Images/visualization (8).png" %}"  alt="">
+    <br><br><br>
+    <hr><br><br><br>
+    <img src="{% static "Images/visualization (10).png" %}"  alt="">
+  </div>
+
+  <!-- Data Representation -->
+  <div class="data-section">
+    <h2>Data Representation Section</h2>
+    <div class="data-container">
+      <div class="data-item">
+        <h3>Year-wise Power Supply in terms of Energy Requirement and Energy Supplied from 2020-21 to 2023-24</h3>
+        <p>Year-wise power supply in terms of energy requirement and energy supplied for peak demand and peak met from 2020-21 to 2023-24 (up to June 2023).</p>
+        <p>Total Energy Requirement: 45,77,712 million units</p>
+        <p>Total Energy Supplied: 45,58,573 million units</p>
+        <p>Highest Energy Requirement: 15,11,847 million units (2022-2023)</p>
+        <p>Highest Energy Supplied: 15,04,264 million units (2022-2023)</p>
+        <p>Lowest Energy Requirement: 4,10,519 million units (2023-2024)</p>
+        <p>Lowest Energy Supplied: 4,09,622 million units (2023-2024)</p>
+        <p><strong>Note:</strong> Data sourced from RAJYA SABHA SESSION - 260 UNSTARRED QUESTION No. 2240, answered on 8th August 2023. Data from 2020-2021 to 2023-2024 (up to June 2023). Data presented in percentage, megawatt, and million units.</p>
+      </div>
+      <div class="data-item">
+        <h3>All India Consumer Price Index of Milk & Products, Oils & Fats, Fruits and Vegetables from January 2023 to May 2023</h3>
+        <p>Consumer Price Index (CPI) measures changes over time in the general level of prices of goods and services that households acquire for the purpose of consumption. For the construction of CPI numbers, two requisite components are weighing diagrams (consumption patterns) and price data collected at regular intervals. The data refers to the All India Consumer Price Index with the base year 2012 equal to 100 and combined for both rural and urban areas.</p>
+        <ul>
+          <li>All India Consumer Price Index (CPI) - Milk and products increased from 174.6 in January 2023 to 179.5 in May 2023, showing an increase of 4.9 points.</li>
+          <li>All India Consumer Price Index (CPI) - Oils and fats decreased from 187.2 in January 2023 to 170 in May 2023, showing a decrease of 17.2 points.</li>
+          <li>All India Consumer Price Index (CPI) - Fruits increased from 158.3 in January 2023 to 172.2 in May 2023, showing an increase of 13.9 points.</li>
+          <li>All India Consumer Price Index (CPI) - Vegetables increased from 152.7 in February 2023 to 161 in May 2023, showing an increase of 8.3 points.</li>
+        </ul>
+      </div>
+      <div class="data-item">
+        <h3>Annual Rainfall in Haryana, Delhi & Chandigarh Subdivision from 1901 to 2017</h3>
+      
+        <p>No clear trend is visible in annual rainfall in Haryana, Delhi & Chandigarh subdivision during 1901 to 2017. However, significant variations have been observed over the years.</p>
+      
+        <ul>
+          <li>1901: 390.1 mms</li>
+          <li>1902: 419.8 mms (+7.61% from 1901)</li>
+          <li>1950: 551.1 mms</li>
+          <li>1951: 338.2 mms (-38.63% from 1950)</li>
+          <li>2000: 384.4 mms</li>
+          <li>2001: 485.5 mms (+26.3% from 2000)</li>
+          <li>2016: 398.7 mms</li>
+          <li>2017: 421.6 mms (+5.74% from 2016)</li>
+        </ul>
+      
+        <p>Maximum annual rainfall: 986.7 mms (1917)<br>
+           Minimum annual rainfall: 234.7 mms (1918)</p>
+      
+        <p>During the last 10 years (2008-2017):<br>
+           Maximum: 710.4 mms (2008)<br>
+           Minimum: 305.5 mms (2014)</p>
+      
+        <p>Maximum monthly rainfall:<br>
+           July 2016: 159.8 mms<br>
+           June 2017: 121.2 mms</p>
+      
+        <p><strong>Note:</strong> All values are in MMS. NA- Not Available.</p>
+      </div>
+    </div>
+  </div>
+  {% endblock content %}
