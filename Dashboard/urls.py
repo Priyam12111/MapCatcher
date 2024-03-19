@@ -1,8 +1,9 @@
-from django.shortcuts import render
 from django.urls import path
+from django.views.generic import RedirectView
 from Dashboard import views
 
 urlpatterns = [
+    path('', RedirectView.as_view(url='home', permanent=False)),
     path('home', views.home, name='home'),
     path('search', views.searchBox, name='searchBox'),
     path('dashboard', views.map_view, name='map_view'),
