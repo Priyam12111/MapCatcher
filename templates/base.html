@@ -16,7 +16,7 @@
 </head>
 
 <body style="background:#f0f0f05e">
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
         <div class="container-fluid">
             <a class="navbar-brand" href="home">GeoPointer</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
@@ -35,7 +35,9 @@
                     <li class="nav-item">
                         <a class="nav-link" href="crop-insights">Crop Insights</a>
                     </li>
-                    
+                    <li class="nav-item">
+                        <a class="nav-link" href="odopProducts">ODOP</a>
+                    </li>
                 </ul>
                 <form class="d-flex" role="search" method="POST" action="{% url 'searchBox' %}">
                     {% csrf_token %}
