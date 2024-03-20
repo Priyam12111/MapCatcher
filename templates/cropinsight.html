@@ -1,11 +1,13 @@
 {% extends "base.html" %}
 {% load static %}
-{% block title %}Crop Insights{% endblock title %}
+{% block title %}Heatmap{% endblock title %}
 {% block content %}
+    
     <div class="title mx-3">
         <h1>{{SearchTitle}}</h1>
         <hr>
     </div>
+    <div class="heatmapbtn"></div>
     <div class="data_view">
         <div class="tableandPagination">
 
@@ -132,5 +134,20 @@
         new ResizeObserver(() => saveSizeToLocalStorage()).observe(resizableMap);
 
         setInitialSizeFromLocalStorage();
+    </script>
+    <script>
+        var currentURL = window.location.href;
+        var heatmapDiv = document.querySelector('.heatmapbtn');
+
+        if (currentURL.includes("crop-insights")) {
+            var button = document.createElement("button");
+            button.innerHTML = "Heatmap";
+
+            button.onclick = function() {
+                window.location.href = "heatmap";
+            };
+
+            heatmapDiv.appendChild(button);
+        }
     </script>
     {% endblock content %}

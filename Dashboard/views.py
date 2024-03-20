@@ -10,6 +10,7 @@ from time import sleep
 import requests, bson
 from django.core.cache import cache
 from folium import plugins
+from folium.plugins import HeatMap
 
 
 def home(request):
@@ -323,7 +324,6 @@ def CropInsights(request):
     states = [term.get("state", "") for term in pincodes_3]
     batch_locations2 = batch_geocode2(pincodes, districts, states)
     flag = 0
-    heatmapdata = []
     for location, pincode, data in zip(batch_locations2, pincodes, documents):
         try:
             if flag == 0:
@@ -332,7 +332,7 @@ def CropInsights(request):
                 folium.TileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', attr='Esri').add_to(m)
                 folium.LayerControl().add_to(m)
                 plugins.Fullscreen().add_to(m)
-                
+
                 flag = 1
         except Exception:
             m = folium.Map(location=[20, 77], zoom_start=5)
@@ -373,6 +373,7 @@ def CropInsights(request):
 
     # Add the JavaScript code to the map
     m.get_root().html.add_child(folium.Element(js_code))
+
     map_html = m._repr_html_()
 
     return render(
@@ -384,5 +385,54 @@ def CropInsights(request):
             "page_obj": page_obj,
             "totalpages": totalpages,
             "SearchTitle": f"BC-Query Lookup",
+        },
+    )
+
+def heatMap(request):
+    
+    collection = db["LargeData"]
+    # ->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    total_documents = collection.count_documents({})
+    page_number = request.GET.get("page")
+    if page_number != None:
+        start_index = (int(page_number) - 1) * totalElem
+    else:
+        start_index = 0
+    # ->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    collection3 = collection.find().sort("_id", 1)
+    documents = list(collection3.limit(10).skip(start_index).limit(totalElem))
+    paginator = Paginator(range(total_documents), totalElem)
+    page_obj = paginator.get_page(page_number)
+    totalpages = paginator.num_pages
+
+    pincodes_3 = list(
+        collection.find({}, {"pincode": 1, "district ": 1, "state": 1})
+        .sort("_id", 1)
+        .skip(start_index)
+        .limit(10)
+    )
+    pincodes = [terms["pincode"] for terms in pincodes_3]
+    districts = [
+        term.get("district ", "") for term in pincodes_3
+    ]  # Use get() with a default value
+    states = [term.get("state", "") for term in pincodes_3]
+    batch_locations2 = batch_geocode2(pincodes, districts, states)
+
+    formatted_data = [[point[0], point[1]]for point in batch_locations2 if point[0] is not None and point[1] is not None]
+
+    m = folium.Map(location=[formatted_data[0][0], formatted_data[0][1]], zoom_start=4)
+    HeatMap(formatted_data, min_opacity=0.5, max_zoom=18, radius=15, blur=10).add_to(m)
+
+    plugins.Fullscreen().add_to(m)
+    map_html = m._repr_html_()
+    return render(
+        request,
+        "templates/cropinsight.html",
+        {
+            "map_html": map_html,
+            "items": documents,
+            "page_obj": page_obj,
+            "totalpages": totalpages,
+            "SearchTitle": f"Heat-Map Query",
         },
     )

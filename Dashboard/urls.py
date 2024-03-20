@@ -9,4 +9,5 @@ urlpatterns = [
     path('search', views.searchBox, name='searchBox'),
     path('dashboard', views.map_view, name='map_view'),
     path('crop-insights', views.CropInsights, name='CropInsights'),
+    path('heatmap', views.heatMap, name='heatMap'),
 ]
